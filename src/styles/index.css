@@ -1,0 +1,211 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Design tokens ----------
+   Colors are CSS variables so the light theme can override them at runtime
+   while Tailwind utilities (bg-surface, text-gold …) stay the same. */
+:root {
+  --c-bg: #090b17;
+  --c-bg-2: #0e1024;
+  --c-surface: #17152b;
+  --c-surface-2: #1f1c3a;
+  --c-border: rgb(167 139 250 / 0.16);
+  --c-primary: #a78bfa;
+  --c-primary-strong: #8b5cf6;
+  --c-gold: #d8b56d;
+  --c-text: #f8fafc;
+  --c-muted: #a1a1aa;
+  --c-glass: rgb(23 21 43 / 0.62);
+  --c-glow: rgb(167 139 250 / 0.35);
+  color-scheme: dark;
+}
+
+:root.light {
+  --c-bg: #f6f4fb;
+  --c-bg-2: #ece8f7;
+  --c-surface: #ffffff;
+  --c-surface-2: #f1edfb;
+  --c-border: rgb(91 63 180 / 0.16);
+  --c-primary: #6d4fd8;
+  --c-primary-strong: #5b3fc4;
+  --c-gold: #a57a1f;
+  --c-text: #17152b;
+  --c-muted: #5b5873;
+  --c-glass: rgb(255 255 255 / 0.75);
+  --c-glow: rgb(109 79 216 / 0.2);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-bg-2: var(--c-bg-2);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-line: var(--c-border);
+  --color-primary: var(--c-primary);
+  --color-primary-strong: var(--c-primary-strong);
+  --color-gold: var(--c-gold);
+  --color-ink: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-glass: var(--c-glass);
+
+  /* Palm-line colors (fixed in both themes so they stay recognisable) */
+  --color-life: #22c55e;
+  --color-head: #3b82f6;
+  --color-heart: #ef4444;
+  --color-fate: #d8b56d;
+
+  --font-sans: 'Inter', 'Battambang', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Battambang', Georgia, serif;
+  --font-khmer: 'Battambang', 'Inter', sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--c-bg);
+    color: var(--c-text);
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+  body {
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgb(139 92 246 / 0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgb(216 181 109 / 0.07), transparent 60%),
+      var(--c-bg);
+    background-attachment: fixed;
+  }
+  /* Khmer script needs a Khmer face and extra line height for stacked vowels */
+  html[lang='km'] body {
+    font-family: var(--font-khmer);
+    line-height: 1.85;
+  }
+  html[lang='km'] .font-serif {
+    font-family: var(--font-khmer);
+  }
+  /* Letter-spacing breaks Khmer glyph clusters */
+  html[lang='km'] .eyebrow,
+  html[lang='km'] [class*='tracking-'] {
+    letter-spacing: normal;
+  }
+  ::selection {
+    background: rgb(167 139 250 / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid var(--c-gold);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+/* ---------- Reusable component utilities (Tailwind v4 @utility) ---------- */
+@utility glass {
+  background: var(--c-glass);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+@utility card {
+  @apply glass rounded-2xl p-5 sm:p-6;
+}
+@utility text-gradient {
+  background: linear-gradient(100deg, var(--c-primary) 0%, #e9d5ff 45%, var(--c-gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  :root.light & {
+    background: linear-gradient(100deg, var(--c-primary-strong), var(--c-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn text-white;
+  background: linear-gradient(135deg, var(--c-primary-strong), var(--c-primary));
+  box-shadow: 0 8px 28px -8px var(--c-glow);
+  &:not(:disabled):hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+}
+@utility btn-gold {
+  @apply btn text-[#1a1406];
+  background: linear-gradient(135deg, #f1d79a, var(--c-gold));
+  box-shadow: 0 8px 28px -10px rgb(216 181 109 / 0.6);
+  &:not(:disabled):hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+}
+@utility btn-ghost {
+  @apply btn border text-ink;
+  border-color: var(--c-border);
+  background: rgb(255 255 255 / 0.02);
+  &:not(:disabled):hover {
+    border-color: var(--c-primary);
+    background: rgb(167 139 250 / 0.08);
+  }
+}
+@utility btn-danger {
+  @apply btn border border-red-500/40 text-red-400 hover:bg-red-500/10;
+}
+@utility input {
+  @apply w-full rounded-xl border bg-transparent px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/70;
+  border-color: var(--c-border);
+  &:focus {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px rgb(167 139 250 / 0.15);
+  }
+  & option {
+    background: var(--c-surface);
+  }
+}
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium;
+  border-color: var(--c-border);
+}
+@utility section-title {
+  @apply font-serif text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl;
+}
+@utility eyebrow {
+  @apply text-xs font-semibold tracking-[0.2em] text-gold uppercase;
+}
+
+/* Scan beam animation used on the hero illustration and scanner frame */
+@keyframes scan-beam {
+  0% { transform: translateY(-10%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(110%); opacity: 0; }
+}
+.scan-beam {
+  animation: scan-beam 3.2s ease-in-out infinite;
+}
+@keyframes draw-line {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print / "Save as PDF" for reading reports */
+@media print {
+  header, nav, aside[aria-label], canvas.fixed, .print\:hidden { display: none !important; }
+  body { background: #fff !important; color: #111 !important; }
+  .glass, .card { background: #fff !important; border-color: #ddd !important; backdrop-filter: none !important; box-shadow: none !important; break-inside: avoid; }
+  .text-muted { color: #444 !important; }
+  .text-ink, .text-ink\/90 { color: #111 !important; }
+  main { max-width: none !important; }
+}
