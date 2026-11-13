@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { generateAllReadings, generateReading } from '../services/interpretationEngine.js';
 import { PALM_RULES, applyRuleOverrides } from '../utils/palmRules.js';
+import { RULE_VARIANTS, SUMMARY_LEADS, TIPS, GLOSSARY } from '../data/readingVariety.js';
 
 const line = (extra) => ({ visible: true, visibility: 'clear', confidence: 80, source: 'auto', breaks: 0, ...extra });
 const FEATURES = {
@@ -55,5 +56,33 @@ describe('interpretation engine', () => {
     expect(rules.find((r) => r.id === 'l-heart-between')).toBeUndefined();
     expect(rules.find((r) => r.id === 'l-heart-curved').text.en).toBe('Custom text.');
     expect(rules.find((r) => r.id === 'l-heart-curved').text.km).toBeTruthy();
+  });
+
+  it('words repeated scans of the same hand differently', () => {
+    const texts = new Set();
+    for (let i = 0; i < 12; i++) {
+      const r = generateAllReadings(FEATURES, { lang: 'en', seed: `scan-${i}` });
+      texts.add(r.map((x) => x.summary + x.details.map((d) => d.text).join('')).join('|'));
+    }
+    expect(texts.size).toBeGreaterThan(6);
+  });
+
+  it('explains Mount of Saturn in plain words', () => {
+    const f = { ...FEATURES, lines: { ...FEATURES.lines, heart: { ...FEATURES.lines.heart, endsAt: 'middle' } } };
+    for (const lang of ['en', 'km']) {
+      const love = generateReading(f, 'love', { lang, seed: 'a' });
+      expect(love.glossary.map((g) => g.id)).toContain('saturn');
+      expect(love.tips).toHaveLength(2);
+    }
+  });
+
+  it('every variant, lead, tip and glossary entry is bilingual', () => {
+    const ids = new Set(PALM_RULES.map((r) => r.id));
+    for (const [id, list] of Object.entries(RULE_VARIANTS)) {
+      expect(ids.has(id), id).toBe(true);
+      for (const v of list) expect(v.en && v.km, id).toBeTruthy();
+    }
+    for (const v of [...SUMMARY_LEADS, ...Object.values(TIPS).flat()]) expect(v.en && v.km).toBeTruthy();
+    for (const g of GLOSSARY) expect(g.term.en && g.term.km && g.text.en && g.text.km, g.id).toBeTruthy();
   });
 });

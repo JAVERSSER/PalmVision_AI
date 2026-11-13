@@ -137,8 +137,8 @@ export const PALM_RULES = [
     when: (f) => seen(f, 'heart') && L(f, 'heart').endsAt === 'index',
     heading: { en: 'Heart line ends below the index finger', km: 'ខ្សែបេះដូងបញ្ចប់នៅក្រោមម្រាមចង្អុល' },
     text: {
-      en: 'A heart line reaching toward the index finger (the "Mount of Jupiter") is traditionally read as idealism in love — high standards, loyalty, and a wish for a partner who is also a friend.',
-      km: 'ខ្សែបេះដូងដែលលាតដល់ម្រាមចង្អុល ("ភ្នំព្រហស្បតិ៍") តាមប្រពៃណីត្រូវបានអានថាជាឧត្តមគតិក្នុងស្នេហា — ស្តង់ដារខ្ពស់ ភាពស្មោះត្រង់ និងបំណងចង់បានដៃគូដែលជាមិត្តផងដែរ។',
+      en: 'A heart line reaching toward the index finger (the "Mount of Jupiter" — the small raised pad of skin at the base of the index finger) is traditionally read as idealism in love — high standards, loyalty, and a wish for a partner who is also a friend.',
+      km: 'ខ្សែបេះដូងដែលលាតដល់ម្រាមចង្អុល ("ទួលព្រហស្បតិ៍" — ផ្នែកសាច់ប៉ោងតូចនៅគល់ម្រាមចង្អុល) តាមប្រពៃណីត្រូវបានអានថាជាឧត្តមគតិក្នុងស្នេហា — ស្តង់ដារខ្ពស់ ភាពស្មោះត្រង់ និងបំណងចង់បានដៃគូដែលជាមិត្តផងដែរ។',
     },
   },
   {
@@ -155,8 +155,8 @@ export const PALM_RULES = [
     when: (f) => seen(f, 'heart') && L(f, 'heart').endsAt === 'middle',
     heading: { en: 'Heart line ends below the middle finger', km: 'ខ្សែបេះដូងបញ្ចប់នៅក្រោមម្រាមកណ្តាល' },
     text: {
-      en: 'A heart line that ends beneath the middle finger (the "Mount of Saturn") is traditionally read as a direct, action-oriented way of loving — showing care through deeds more than words.',
-      km: 'ខ្សែបេះដូងដែលបញ្ចប់នៅក្រោមម្រាមកណ្តាល ("ភ្នំសៅរ៍") តាមប្រពៃណីត្រូវបានអានថាជារបៀបស្រឡាញ់ដោយផ្ទាល់ និងផ្តោតលើសកម្មភាព — បង្ហាញការយកចិត្តទុកដាក់តាមរយៈទង្វើច្រើនជាងពាក្យសម្តី។',
+      en: 'A heart line that ends beneath the middle finger (the "Mount of Saturn" — the small raised pad of skin at the base of the middle finger) is traditionally read as a direct, action-oriented way of loving — showing care through deeds more than words.',
+      km: 'ខ្សែបេះដូងដែលបញ្ចប់នៅក្រោមម្រាមកណ្តាល ("ទួលសៅរ៍" — ផ្នែកសាច់ប៉ោងតូចនៅគល់ម្រាមកណ្តាល) តាមប្រពៃណីត្រូវបានអានថាជារបៀបស្រឡាញ់ដោយផ្ទាល់ និងផ្តោតលើសកម្មភាព — បង្ហាញការយកចិត្តទុកដាក់តាមរយៈទង្វើច្រើនជាងពាក្យសម្តី។',
     },
   },
   {
@@ -386,6 +386,80 @@ export const PALM_RULES = [
     text: {
       en: 'Several interruptions across the major lines are traditionally read as a life of many chapters — fortune that arrives through change and reinvention.',
       km: 'ការដាច់ជាច្រើនលើខ្សែសំខាន់ៗ តាមប្រពៃណីត្រូវបានអានថាជាជីវិតនៃជំពូកជាច្រើន — សំណាងដែលមកតាមរយៈការផ្លាស់ប្តូរ និងការកែប្រែខ្លួនឡើងវិញ។',
+    },
+  },
+
+  // ------------------------------------------------ extra combinations ---
+  {
+    id: 'p-fingers-long', category: 'personality', line: null, weight: 2,
+    when: (f) => (f.palmShape?.fingerRatio ?? 0) >= 1.1,
+    heading: { en: 'Long fingers', km: 'ម្រាមដៃវែង' },
+    text: {
+      en: 'Fingers that are long compared with the palm are traditionally read as patience and an eye for detail — someone who enjoys getting the small things right.',
+      km: 'ម្រាមដៃដែលវែងបើធៀបនឹងបាតដៃ តាមប្រពៃណីត្រូវបានអានថាជាការអត់ធ្មត់ និងការយកចិត្តទុកដាក់លើព័ត៌មានលម្អិត — មនុស្សដែលចូលចិត្តធ្វើរឿងតូចៗឱ្យបានត្រឹមត្រូវ។',
+    },
+  },
+  {
+    id: 'p-fingers-short', category: 'personality', line: null, weight: 2,
+    when: (f) => f.palmShape && f.palmShape.fingerRatio <= 0.9,
+    heading: { en: 'Shorter fingers', km: 'ម្រាមដៃខ្លី' },
+    text: {
+      en: 'Fingers that are short compared with the palm are traditionally read as a big-picture thinker — quick to grasp the whole idea and impatient with too much detail.',
+      km: 'ម្រាមដៃដែលខ្លីបើធៀបនឹងបាតដៃ តាមប្រពៃណីត្រូវបានអានថាជាអ្នកគិតមើលរូបភាពធំ — យល់គំនិតទាំងមូលបានលឿន ហើយមិនសូវចូលចិត្តលម្អិតពេក។',
+    },
+  },
+  {
+    id: 'l-heart-clear', category: 'love', line: 'heart', weight: 2,
+    when: (f) => seen(f, 'heart') && L(f, 'heart').visibility === 'clear',
+    heading: { en: 'A deep, clear heart line', km: 'ខ្សែបេះដូងជ្រៅ និងច្បាស់' },
+    text: {
+      en: 'A heart line that shows deeply and clearly is traditionally read as emotional honesty — when you care about someone, it is hard for you to hide it.',
+      km: 'ខ្សែបេះដូងដែលឃើញជ្រៅ និងច្បាស់ តាមប្រពៃណីត្រូវបានអានថាជាភាពស្មោះត្រង់ផ្នែកអារម្មណ៍ — ពេលអ្នកស្រឡាញ់នរណាម្នាក់ អ្នកពិបាកលាក់វាណាស់។',
+    },
+  },
+  {
+    id: 'c-fate-to-fingers', category: 'career', line: 'fate', weight: 2,
+    when: (f) => seen(f, 'fate') && L(f, 'fate').endsNear === 'fingers',
+    heading: { en: 'Fate line climbs toward the fingers', km: 'ខ្សែវាសនាឡើងទៅដល់ម្រាមដៃ' },
+    text: {
+      en: 'A fate line that keeps climbing past the heart line is traditionally read as ambition that keeps growing with age — goals that stay active well into later life.',
+      km: 'ខ្សែវាសនាដែលឡើងហួសខ្សែបេះដូង តាមប្រពៃណីត្រូវបានអានថាជាមហិច្ឆតាដែលកាន់តែរីកចម្រើនតាមអាយុ — គោលដៅដែលនៅតែសកម្មរហូតដល់វ័យចាស់។',
+    },
+  },
+  {
+    id: 'c-fate-heart', category: 'career', line: 'fate', weight: 2,
+    when: (f) => seen(f, 'fate') && L(f, 'fate').endsNear === 'heartLine',
+    heading: { en: 'Fate line stops at the heart line', km: 'ខ្សែវាសនាឈប់នៅខ្សែបេះដូង' },
+    text: {
+      en: 'Where the fate line ends near the heart line, palmists traditionally say later career choices are guided by the heart — by people, passion and what feels meaningful.',
+      km: 'នៅពេលខ្សែវាសនាបញ្ចប់ជិតខ្សែបេះដូង ហោរាបាតដៃនិយាយថា ការជ្រើសរើសអាជីពនៅពេលក្រោយត្រូវបានដឹកនាំដោយបេះដូង — ដោយមនុស្ស ចំណង់ចំណូលចិត្ត និងអ្វីដែលមានអត្ថន័យ។',
+    },
+  },
+  {
+    id: 'c-head-joined', category: 'career', line: 'head', weight: 1,
+    when: (f) => seen(f, 'head') && seen(f, 'life') && L(f, 'head').joinedWithLife,
+    heading: { en: 'A careful planner at work', km: 'អ្នករៀបចំផែនការប្រុងប្រយ័ត្នក្នុងការងារ' },
+    text: {
+      en: 'Head and life lines that start together are traditionally linked at work with preparation — you tend to do your homework before a big move.',
+      km: 'ខ្សែប្រាជ្ញា និងខ្សែជីវិតដែលចាប់ផ្តើមជាមួយគ្នា តាមប្រពៃណីត្រូវបានភ្ជាប់ក្នុងការងារទៅនឹងការត្រៀមខ្លួន — អ្នកតែងតែសិក្សាឱ្យបានច្បាស់មុនពេលធ្វើការសម្រេចចិត្តធំ។',
+    },
+  },
+  {
+    id: 'f-clear-lines', category: 'fortune', line: null, weight: 2,
+    when: (f) => ['life', 'head', 'heart', 'fate'].filter((id) => L(f, id).visibility === 'clear').length >= 3,
+    heading: { en: 'A clearly marked palm', km: 'បាតដៃមានខ្សែច្បាស់' },
+    text: {
+      en: 'When most major lines are deep and clear, palmists traditionally read it as focused energy — luck that comes from knowing what you want and going after it.',
+      km: 'នៅពេលខ្សែសំខាន់ៗភាគច្រើនជ្រៅ និងច្បាស់ ហោរាបាតដៃអានវាថាជាថាមពលដែលផ្តោត — សំណាងដែលមកពីការដឹងថាខ្លួនចង់បានអ្វី ហើយខិតខំដើម្បីវា។',
+    },
+  },
+  {
+    id: 'f-faint-lines', category: 'fortune', line: null, weight: 1,
+    when: (f) => ['life', 'head', 'heart'].filter((id) => L(f, id).visibility === 'faint').length >= 2,
+    heading: { en: 'A softly marked palm', km: 'បាតដៃមានខ្សែស្រាល' },
+    text: {
+      en: 'Lighter, finer lines are traditionally read as sensitivity to surroundings — good fortune tends to follow when you are in a calm, supportive place.',
+      km: 'ខ្សែស្រាល និងល្អិត តាមប្រពៃណីត្រូវបានអានថាជាភាពរសើបចំពោះបរិយាកាស — សំណាងល្អច្រើនតែមកនៅពេលអ្នកនៅកន្លែងស្ងប់ និងមានការគាំទ្រ។',
     },
   },
 ];

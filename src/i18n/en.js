@@ -199,6 +199,8 @@ const en = {
     showPalm: 'Show your open palm to the camera.',
     holdStill: 'Hand found — hold still…',
     steady: 'Steady! Press Capture.',
+    steadyAuto: 'Open your palm fully and hold still — it will capture automatically.',
+    autoCapturing: 'Hold still — capturing automatically…',
     errors: {
       denied: 'Camera permission was denied. Allow camera access in your browser settings, or upload a photo instead.',
       notFound: 'No camera was found on this device. You can upload a photo instead.',
@@ -356,6 +358,8 @@ const en = {
     noDetails: 'The lines used for this reading were not detected clearly enough to interpret.',
     observations: 'Interesting observations',
     reflections: 'Reflection questions',
+    tips: 'Tips for you',
+    glossary: 'Words explained',
     feedback: {
       title: 'Was this reading enjoyable?',
       rating: 'Rating',
@@ -430,7 +434,7 @@ const en = {
     showLandmarks: 'Show hand landmarks',
     showLandmarksHelp: 'Draw the 21 detected points over the camera and images.',
     autoCapture: 'Auto-capture',
-    autoCaptureHelp: 'Take the photo automatically once your hand is steady.',
+    autoCaptureHelp: 'Take the photo automatically once your open palm is steady (no need to press Capture).',
     ai: 'AI narrative (optional)',
     aiSubtitle: 'Requires a server-side API key — the app works fully without it.',
     useAI: 'Offer AI narrative on reports',

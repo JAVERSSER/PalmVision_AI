@@ -10,6 +10,7 @@
 
 import { PALM_RULES, ELEMENT_THEMES, applyRuleOverrides } from '../utils/palmRules.js';
 import { CATEGORIES, CATEGORY_META, LINE_NAMES, VALUE_LABELS, REFLECTIONS, DISCLAIMER } from '../data/readingData.js';
+import { RULE_VARIANTS, SUMMARY_LEADS, TIPS, GLOSSARY } from '../data/readingVariety.js';
 
 const pick = (obj, lang) => (obj ? obj[lang] ?? obj.en : '');
 
@@ -25,6 +26,9 @@ function seededOrder(arr, seed) {
   return arr.map((v) => [rand(), v]).sort((a, b) => a[0] - b[0]).map(([, v]) => v);
 }
 
+/** Picks one item from `arr`, chosen by the seed (same seed → same pick). */
+const pickSeeded = (arr, seedStr) => seededOrder(arr, hashSeed(seedStr))[0];
+
 const fmt = (tpl, vars) => tpl.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? `{${k}}`));
 
 const T = {
@@ -34,10 +38,6 @@ const T = {
   notDetected: { en: 'Not clearly detected in this image', km: 'រកមិនឃើញច្បាស់ក្នុងរូបភាពនេះ' },
   shape: { en: '{shape}, {fingers} — palm ratio {pr}, finger ratio {fr}', km: '{shape}, {fingers} — សមាមាត្របាតដៃ {pr}, សមាមាត្រម្រាមដៃ {fr}' },
   palmShape: { en: 'Palm shape', km: 'រាងបាតដៃ' },
-  summaryLead: {
-    en: 'Based on the visible features of your {hand} palm, traditional palmistry would read it like this:',
-    km: 'ផ្អែកលើលក្ខណៈដែលមើលឃើញនៃបាតដៃ{hand}របស់អ្នក ហោរាសាស្ត្របាតដៃប្រពៃណីនឹងអានវាដូចនេះ៖',
-  },
   hand: { left: { en: 'left', km: 'ឆ្វេង' }, right: { en: 'right', km: 'ស្តាំ' } },
   lowConfidence: {
     en: 'Some lines used in this reading had low visual confidence. Consider adjusting them in the analysis view or rescanning in brighter light.',
@@ -170,24 +170,32 @@ function observationsFor(category, features, lang) {
 export function generateReading(features, category, { lang = 'en', seed = '', overrides = {} } = {}) {
   const meta = CATEGORY_META[category];
   const rules = applyRuleOverrides(PALM_RULES, overrides).filter((r) => r.category === category);
-  const fired = rules
-    .filter((r) => {
-      try {
-        return r.when(features);
-      } catch {
-        return false;
-      }
-    })
+  const scanSeed = `${seed}:${category}`;
+  const matching = rules.filter((r) => {
+    try {
+      return r.when(features);
+    } catch {
+      return false;
+    }
+  });
+  // Shuffle by seed first so rules of equal weight appear in a different order on each scan.
+  const fired = seededOrder(matching, hashSeed(scanSeed))
     .sort((a, b) => b.weight - a.weight)
-    .slice(0, 5);
+    .slice(0, 6);
+
+  // Each rule can be worded several ways; the scan's seed picks one (admin-edited text is always used as-is).
+  const ruleText = (r) => {
+    if (overrides[r.id]?.text?.[lang]?.trim()) return r.text;
+    return pickSeeded([r.text, ...(RULE_VARIANTS[r.id] || [])], `${scanSeed}:${r.id}`);
+  };
 
   const element = ELEMENT_THEMES[features.palmShape?.element];
-  const details = fired.map((r) => ({ id: r.id, line: r.line, heading: pick(r.heading, lang), text: pick(r.text, lang) }));
+  const details = fired.map((r) => ({ id: r.id, line: r.line, heading: pick(r.heading, lang), text: pick(ruleText(r), lang) }));
 
-  const lead = fmt(pick(T.summaryLead, lang), { hand: pick(T.hand[features.handType] || T.hand.right, lang) });
+  const lead = fmt(pick(pickSeeded(SUMMARY_LEADS, `${scanSeed}:lead`), lang), { hand: pick(T.hand[features.handType] || T.hand.right, lang) });
   const summaryParts = [lead];
   if (element) summaryParts.push(pick(element[category], lang));
-  if (fired[0]) summaryParts.push(pick(fired[0].text, lang).split(/(?<=[.។])\s/)[0]);
+  if (details[0]) summaryParts.push(details[0].text.split(/(?<=[.។])\s/)[0]);
   else summaryParts.push(pick(T.noRules, lang));
 
   const detectedFeatures = meta.lines.map((id) => describeLine(id, features.lines[id], lang));
@@ -198,16 +206,29 @@ export function generateReading(features, category, { lang = 'en', seed = '', ov
   const reflections = seededOrder(REFLECTIONS[category], hashSeed(`${seed}:${category}`))
     .slice(0, 3)
     .map((q) => pick(q, lang));
+  const tips = seededOrder(TIPS[category], hashSeed(`${scanSeed}:tips`))
+    .slice(0, 2)
+    .map((q) => pick(q, lang));
+
+  const summary = summaryParts.join(' ');
+  const observations = observationsFor(category, features, lang);
+  // Explain palmistry words (e.g. "Mount of Saturn") that appear in this reading.
+  const allText = [summary, ...details.map((d) => d.text), ...observations].join(' ');
+  const glossary = GLOSSARY.filter((g) => g.match.test(allText))
+    .slice(0, 4)
+    .map((g) => ({ id: g.id, term: pick(g.term, lang), text: pick(g.text, lang) }));
 
   return {
     category,
     title: pick(meta.title, lang),
     tagline: pick(meta.tagline, lang),
     detectedFeatures,
-    summary: summaryParts.join(' '),
+    summary,
     details,
-    observations: observationsFor(category, features, lang),
+    observations,
     reflections,
+    tips,
+    glossary,
     lowConfidence,
     lowConfidenceNote: lowConfidence ? pick(T.lowConfidence, lang) : null,
     disclaimer: pick(DISCLAIMER, lang),

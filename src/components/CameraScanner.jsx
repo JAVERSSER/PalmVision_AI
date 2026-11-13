@@ -5,9 +5,10 @@ import { useHandLandmarker } from '../hooks/useHandLandmarker.js';
 import { useT } from '../i18n/index.js';
 import { useSettings } from '../context/SettingsContext.jsx';
 import HandLandmarks from './HandLandmarks.jsx';
-import { drawScaled } from '../utils/imageValidation.js';
+import { drawScaled, fingersExtended } from '../utils/imageValidation.js';
 
 const STABLE_FRAMES = 12;
+const AUTO_HOLD_MS = 1200; // how long an open palm must stay steady before the photo is taken
 
 /**
  * Live webcam view with real-time MediaPipe landmarks.
@@ -38,15 +39,21 @@ export default function CameraScanner({ handType, onCapture, onState }) {
     onCapture(canvas);
   };
 
-  // Optional hands-free capture once the hand has been steady for ~1.5 s.
+  // Hands-free capture: once an open palm is held steady for AUTO_HOLD_MS the photo is taken automatically.
+  const auto = settings.autoCapture;
+  const steadySinceRef = useRef(null);
+  const ready =
+    auto && cam.status === 'active' && tracking.handsCount === 1 && tracking.hand && tracking.stableFrames >= 3 && fingersExtended(tracking.hand.landmarks) >= 3;
+  if (!ready) steadySinceRef.current = null;
+  else if (steadySinceRef.current == null) steadySinceRef.current = performance.now();
+  const autoProgress = ready ? Math.min(1, (performance.now() - steadySinceRef.current) / AUTO_HOLD_MS) : 0;
+
   useEffect(() => {
-    if (!settings.autoCapture || autoRef.current) return;
-    if (tracking.hand && tracking.stableFrames >= STABLE_FRAMES * 3) {
-      autoRef.current = true;
-      capture();
-    }
+    if (!ready || autoRef.current || autoProgress < 1) return;
+    autoRef.current = true;
+    capture();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.autoCapture, tracking.stableFrames, tracking.hand]);
+  }, [ready, autoProgress]);
 
   const aspect = tracking.width && tracking.height ? `${tracking.width} / ${tracking.height}` : '16 / 9';
   const mirror = cam.mirrored ? '-scale-x-100' : '';
@@ -67,6 +74,15 @@ export default function CameraScanner({ handType, onCapture, onState }) {
                 <div className="scan-beam h-16 bg-gradient-to-b from-transparent to-primary/40" />
               </div>
             </div>
+          </div>
+        )}
+
+        {auto && autoProgress > 0 && (
+          <div className="pointer-events-none absolute inset-0 grid place-items-center" aria-hidden="true">
+            <svg viewBox="0 0 100 100" className="h-24 w-24 -rotate-90 drop-shadow">
+              <circle cx="50" cy="50" r="44" fill="rgba(0,0,0,0.35)" stroke="rgba(255,255,255,0.2)" strokeWidth="6" />
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#34d399" strokeWidth="6" strokeLinecap="round" pathLength="1" strokeDasharray="1" strokeDashoffset={1 - autoProgress} />
+            </svg>
           </div>
         )}
 
@@ -133,7 +149,7 @@ export default function CameraScanner({ handType, onCapture, onState }) {
             ))}
           </select>
         )}
-        <p className="w-full text-xs text-muted sm:ml-auto sm:w-auto">{stable ? t('camera.steady') : tracking.hand ? t('camera.holdStill') : t('camera.showPalm')}</p>
+        <p className="w-full text-xs text-muted sm:ml-auto sm:w-auto">{auto && autoProgress > 0 ? t('camera.autoCapturing') : stable ? t(auto ? 'camera.steadyAuto' : 'camera.steady') : tracking.hand ? t('camera.holdStill') : t('camera.showPalm')}</p>
       </div>
     </div>
   );

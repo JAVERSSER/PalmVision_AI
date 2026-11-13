@@ -3,13 +3,15 @@ import { getCurrentUser, saveUser, onDataChange } from '../services/storageServi
 import { DEFAULT_THRESHOLDS, DEFAULT_MAX_UPLOAD_MB } from '../utils/imageValidation.js';
 
 const STORAGE_KEY = 'pv.settings';
+const SETTINGS_VERSION = 2; // v2: auto-capture became the default
 
 export const DEFAULT_SETTINGS = {
+  version: SETTINGS_VERSION,
   language: 'en',
   theme: 'dark',
   saveImagesByDefault: false, // privacy: images are never stored unless the user opts in
   showLandmarks: true,
-  autoCapture: false,
+  autoCapture: true, // hands-free: photo is taken once the open palm is steady
   useAI: false, // optional LLM narrative (needs a configured server)
   reduceMotion: false,
   admin: {
@@ -23,6 +25,11 @@ export const DEFAULT_SETTINGS = {
 function load() {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    // Older saves stored the previous default (autoCapture: false) — switch them to the new default once.
+    if ((raw.version || 1) < SETTINGS_VERSION) {
+      delete raw.autoCapture;
+      raw.version = SETTINGS_VERSION;
+    }
     const browserKm = navigator.language?.toLowerCase().startsWith('km');
     return {
       ...DEFAULT_SETTINGS,

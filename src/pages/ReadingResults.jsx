@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Save, Printer, ScanLine, ArrowLeft, Bot, Star, Send, CircleCheck, TriangleAlert, Eye, Lightbulb, MessageSquare, ListChecks, BookOpen, LoaderCircle, Trash2 } from 'lucide-react';
+import { Save, Printer, ScanLine, ArrowLeft, Bot, Star, Send, CircleCheck, TriangleAlert, Eye, Lightbulb, MessageSquare, ListChecks, BookOpen, LoaderCircle, Trash2, Sparkles } from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import AnalysisCard from '../components/AnalysisCard.jsx';
 import ReadingCard, { CATEGORY_ICONS } from '../components/ReadingCard.jsx';
@@ -332,6 +332,30 @@ export default function ReadingResults() {
               </ol>
             </AnalysisCard>
           </div>
+
+          {(report.tips?.length > 0 || report.glossary?.length > 0) && (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {report.tips?.length > 0 && (
+                <AnalysisCard icon={Sparkles} title={t('results.tips')}>
+                  <ul className="list-inside list-disc space-y-2 text-sm leading-relaxed text-muted marker:text-gold">
+                    {report.tips.map((q) => <li key={q}>{q}</li>)}
+                  </ul>
+                </AnalysisCard>
+              )}
+              {report.glossary?.length > 0 && (
+                <AnalysisCard icon={BookOpen} title={t('results.glossary')}>
+                  <dl className="space-y-3 text-sm leading-relaxed">
+                    {report.glossary.map((g) => (
+                      <div key={g.id}>
+                        <dt className="font-semibold text-ink">{g.term}</dt>
+                        <dd className="text-muted">{g.text}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </AnalysisCard>
+              )}
+            </div>
+          )}
 
           <Disclaimer />
 
